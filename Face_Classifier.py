@@ -5,23 +5,23 @@
 # 
 # Freeze all layers except the top 4, as we'll only be training the top 4
 
-from keras.applications import MobileNet
+from keras.applications import VGG16
 
 # MobileNet was designed to work on 224 x 224 pixel input images sizes
 img_rows, img_cols = 224, 224 
 
-# Re-loads the MobileNet model without the top or FC layers
-MobileNet = MobileNet(weights = 'imagenet', 
+# Re-loads the VGG16 model without the top or FC layers
+model = VGG16(weights = 'imagenet', 
                  include_top = False, 
                  input_shape = (img_rows, img_cols, 3))
 
 # Here we freeze the last 4 layers 
 # Layers are set to trainable as True by default
-for layer in MobileNet.layers:
+for layer in model.layers:
     layer.trainable = False
     
 # Let's print our layers 
-for (i,layer) in enumerate(MobileNet.layers):
+for (i,layer) in enumerate(model.layers):
     print(str(i) + " "+ layer.__class__.__name__, layer.trainable)
 
 
@@ -52,11 +52,11 @@ from keras.models import Model
 # Set our class number to 3 (Young, Middle, Old)
 num_classes = 3
 
-FC_Head = add_layer(MobileNet, num_classes)
+FC_Head = add_layer(model, num_classes)
 
-model = Model(inputs = MobileNet.input, outputs = FC_Head)
+modelnew = Model(inputs = model.input, outputs = FC_Head)
 
-print(model.summary())
+print(modelnew.summary())
 
 
 # ### Loading our Face Datasets
@@ -100,7 +100,7 @@ from keras.optimizers import RMSprop
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
                      
-checkpoint = ModelCheckpoint("faces.h5",
+checkpoint = ModelCheckpoint("face_vgg.h5",
                              monitor="val_loss",
                              mode="min",
                              save_best_only = True,
@@ -116,7 +116,7 @@ earlystop = EarlyStopping(monitor = 'val_loss',
 callbacks = [earlystop, checkpoint]
 
 # We use a very small learning rate 
-model.compile(loss = 'categorical_crossentropy',
+modelnew.compile(loss = 'categorical_crossentropy',
               optimizer = RMSprop(lr = 0.001),
               metrics = ['accuracy'])
 
@@ -125,17 +125,16 @@ nb_train_samples = 102
 nb_validation_samples = 28 
 
 # We only train 5 EPOCHS 
-epochs = 5
-batch_size = 3
+epochs = 3
+batch_size = 5
 
-history = model.fit_generator(
+history = modelnew.fit_generator(
     train_generator,
     steps_per_epoch = nb_train_samples // batch_size,
     epochs = epochs,
     callbacks = callbacks,
     validation_data = validation_generator,
     validation_steps = nb_validation_samples // batch_size )
-
 
 # ### Re-training the Model
 # - Triggering the next job of the accuracy falls below 92%

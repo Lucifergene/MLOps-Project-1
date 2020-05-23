@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Using MobileNet for our Face Classifier
+# # Using VGG16 for our Face Classifier
 # 
 # Freeze all layers except the top 4, as we'll only be training the top 4
 
 from keras.applications import VGG16
 
-# MobileNet was designed to work on 224 x 224 pixel input images sizes
+# VGG16 was designed to work on 224 x 224 pixel input images sizes
 img_rows, img_cols = 224, 224 
 
 # Re-loads the VGG16 model without the top or FC layers
@@ -125,8 +125,8 @@ nb_train_samples = 102
 nb_validation_samples = 28 
 
 # We only train 5 EPOCHS 
-epochs = 3
-batch_size = 5
+epochs = 5
+batch_size = 16
 
 history = modelnew.fit_generator(
     train_generator,

@@ -125,7 +125,7 @@ nb_train_samples = 102
 nb_validation_samples = 28 
 
 # We only train 5 EPOCHS 
-epochs = 5
+epochs = 4
 batch_size = 16
 
 history = modelnew.fit_generator(
@@ -135,6 +135,8 @@ history = modelnew.fit_generator(
     callbacks = callbacks,
     validation_data = validation_generator,
     validation_steps = nb_validation_samples // batch_size )
+
+modelnew.save("/root/face_vgg16.h5")
 
 # ### Re-training the Model
 # - Triggering the next job of the accuracy falls below 92%

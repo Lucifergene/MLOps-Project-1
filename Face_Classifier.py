@@ -63,8 +63,8 @@ print(modelnew.summary())
 
 from keras.preprocessing.image import ImageDataGenerator
 
-train_data_dir = 'datasets/train/'
-validation_data_dir = 'datasets/validation/'
+train_data_dir = '/root/datasets/train/'
+validation_data_dir = '/root/datasets/validation/'
 
 # Let's use some data augmentaiton 
 train_datagen = ImageDataGenerator(

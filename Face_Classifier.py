@@ -100,7 +100,7 @@ from keras.optimizers import RMSprop
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
                      
-checkpoint = ModelCheckpoint("face_vgg.h5",
+checkpoint = ModelCheckpoint("/root/face_vgg16.h5",
                              monitor="val_loss",
                              mode="min",
                              save_best_only = True,

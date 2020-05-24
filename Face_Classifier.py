@@ -125,7 +125,7 @@ nb_train_samples = 102
 nb_validation_samples = 28 
 
 # We only train 5 EPOCHS 
-epochs = 4
+epochs = 2
 batch_size = 16
 
 history = modelnew.fit_generator(
@@ -149,3 +149,5 @@ if final_accuracy < 0.92:
     os.system("curl --user 'admin:admin' http://192.168.43.133:8080/view/Mlops-project-1/job/Retraining_the_Model/build?token=retrain_model")
 else:
     print("Your New accuracy= ",final_accuracy)
+
+

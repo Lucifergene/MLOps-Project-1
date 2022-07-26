@@ -1,27 +1,27 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Using MobileNet for our Face Classifier
+# # Using VGG16 for our Face Classifier
 # 
 # Freeze all layers except the top 4, as we'll only be training the top 4
 
-from keras.applications import MobileNet
+from keras.applications import VGG16
 
-# MobileNet was designed to work on 224 x 224 pixel input images sizes
+# VGG16 was designed to work on 224 x 224 pixel input images sizes
 img_rows, img_cols = 224, 224 
 
-# Re-loads the MobileNet model without the top or FC layers
-MobileNet = MobileNet(weights = 'imagenet', 
+# Re-loads the VGG16 model without the top or FC layers
+model = VGG16(weights = 'imagenet', 
                  include_top = False, 
                  input_shape = (img_rows, img_cols, 3))
 
 # Here we freeze the last 4 layers 
 # Layers are set to trainable as True by default
-for layer in MobileNet.layers:
+for layer in model.layers:
     layer.trainable = False
     
 # Let's print our layers 
-for (i,layer) in enumerate(MobileNet.layers):
+for (i,layer) in enumerate(model.layers):
     print(str(i) + " "+ layer.__class__.__name__, layer.trainable)
 
 
@@ -52,19 +52,19 @@ from keras.models import Model
 # Set our class number to 3 (Young, Middle, Old)
 num_classes = 3
 
-FC_Head = add_layer(MobileNet, num_classes)
+FC_Head = add_layer(model, num_classes)
 
-model = Model(inputs = MobileNet.input, outputs = FC_Head)
+modelnew = Model(inputs = model.input, outputs = FC_Head)
 
-print(model.summary())
+print(modelnew.summary())
 
 
 # ### Loading our Face Datasets
 
 from keras.preprocessing.image import ImageDataGenerator
 
-train_data_dir = 'datasets/train'
-validation_data_dir = 'datasets/validation/'
+train_data_dir = '/root/datasets/train/'
+validation_data_dir = '/root/datasets/validation/'
 
 # Let's use some data augmentaiton 
 train_datagen = ImageDataGenerator(
@@ -100,7 +100,7 @@ from keras.optimizers import RMSprop
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
                      
-checkpoint = ModelCheckpoint("faces.h5",
+checkpoint = ModelCheckpoint("/root/face_vgg16.h5",
                              monitor="val_loss",
                              mode="min",
                              save_best_only = True,
@@ -116,7 +116,7 @@ earlystop = EarlyStopping(monitor = 'val_loss',
 callbacks = [earlystop, checkpoint]
 
 # We use a very small learning rate 
-model.compile(loss = 'categorical_crossentropy',
+modelnew.compile(loss = 'categorical_crossentropy',
               optimizer = RMSprop(lr = 0.001),
               metrics = ['accuracy'])
 
@@ -125,10 +125,10 @@ nb_train_samples = 102
 nb_validation_samples = 28 
 
 # We only train 5 EPOCHS 
-epochs = 5
-batch_size = 3
+epochs = 2
+batch_size = 16
 
-history = model.fit_generator(
+history = modelnew.fit_generator(
     train_generator,
     steps_per_epoch = nb_train_samples // batch_size,
     epochs = epochs,
@@ -136,6 +136,7 @@ history = model.fit_generator(
     validation_data = validation_generator,
     validation_steps = nb_validation_samples // batch_size )
 
+modelnew.save("/root/face_vgg16.h5")
 
 # ### Re-training the Model
 # - Triggering the next job of the accuracy falls below 92%
@@ -148,3 +149,5 @@ if final_accuracy < 0.92:
     os.system("curl --user 'admin:admin' http://192.168.43.133:8080/view/Mlops-project-1/job/Retraining_the_Model/build?token=retrain_model")
 else:
     print("Your New accuracy= ",final_accuracy)
+
+
